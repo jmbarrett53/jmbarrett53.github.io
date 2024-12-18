@@ -1,10 +1,10 @@
 // script.js
 const map = L.map('map').setView([38.901222, -77.265259], 12); // Initial view (Vienna, VA)
 
-// // Add OpenStreetMap tiles to the map
-// L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-//   attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-// }).addTo(map);
+// Add OpenStreetMap tiles to the map
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+}).addTo(map);
 
 // // Function to simulate dynamic traffic data (for example, traffic speed or congestion)
 // function getTrafficData() {
