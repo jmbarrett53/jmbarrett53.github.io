@@ -1,33 +1,28 @@
-function initMap() {
-    // Center the map around Vienna
-    const vienna = { lat: 48.2082, lng: 16.3738 };
-  
-    // Initialize the map
-    const map = new google.maps.Map(document.getElementById('map'), {
-      zoom: 13,
-      center: vienna,
-      mapTypeId: 'roadmap'
-    });
-  
+// Initialize the heatmap functionality after the map is set up
+function initHeatmap(map) {
     // Example data points (latitude, longitude, intensity)
     const heatmapData = [
-      { location: new google.maps.LatLng(48.210033, 16.363449), weight: 3 },
-      { location: new google.maps.LatLng(48.209217, 16.379891), weight: 2 },
-      { location: new google.maps.LatLng(48.215056, 16.345843), weight: 5 },
-      { location: new google.maps.LatLng(48.198975, 16.372116), weight: 1 }
+      [38.900, -77.265, 0.5], // Example point with intensity
+      [38.895, -77.275, 0.2],
+      [38.905, -77.250, 0.8],
+      [38.890, -77.260, 0.4]
     ];
   
-    // Create the heatmap layer
-    const heatmap = new google.maps.visualization.HeatmapLayer({
-      data: heatmapData,
-      map: map
+    // Add heatmap layer
+    const heatmapLayer = L.heatLayer(heatmapData, {
+      radius: 25,  // Radius of each heatmap point in pixels
+      blur: 15,    // Blur intensity for the heatmap
+      maxZoom: 13, // Maximum zoom level for heatmap
+      max: 1.0     // Maximum intensity
     });
   
-    // Optional: Customize the heatmap
-    heatmap.set('radius', 20);
-    heatmap.set('opacity', 0.6);
+    // Add the heatmap layer to the map
+    heatmapLayer.addTo(map);
   }
   
-  // Initialize the map when the page loads
-  window.onload = initMap;
+  // Initialize heatmap on page load
+  window.onload = function () {
+    // The map is already created in your HTML shell, pass it to initHeatmap
+    initHeatmap(map);
+  };
   
