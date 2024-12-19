@@ -25,6 +25,9 @@
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
+    let userLattitude = 0;
+    let userLongitude = 0;
+
     // Prompt user for location
     function getLocation() {
       if (navigator.geolocation) {
@@ -35,6 +38,8 @@
     }
 
     function showPosition(position) {
+      userLattitude = position.coords.latitude;
+      userLongitude = position.coords.longitude;
       console.log("Latitude: " + position.coords.latitude);
       console.log("Longitude: " + position.coords.longitude);
     }
@@ -57,8 +62,9 @@
     } 
 
     // Call the function to get the user's location
-    let userLocation = getLocation();
-    alert(`User is located at ${userLocation}`)
+    getLocation();
+    let userLocation = userLattitude + "," + userLongitude;
+    alert(`User is located at ${userLocation}`);
 
     // // Create the map and set the initial view to Vienna, Virginia
     // var map = L.map('map').setView([38.899, -77.265], 13);  // Coordinates for Vienna, VA
