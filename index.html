@@ -43,7 +43,8 @@
       console.log("Latitude: " + position.coords.latitude);
       console.log("Longitude: " + position.coords.longitude);
       let userLocation = userLattitude + "," + userLongitude;
-      alert(`User is located at ${userLocation}`);
+      // alert(`User is located at ${userLocation}`);
+      displayMap(userLattitude, userLongitude)
     }
 
     function showError(error) {
@@ -63,8 +64,23 @@
         }
     } 
 
+    function displayMap(mapLattitude, mapLongitude) {
+      var map = L.map('map').setView([mapLattitude, mapLongitude], 13)
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    L.marker([mapLattitude, mapLongitude]).addTo(map)
+      .bindPopup('User Origin')
+      .openPopup();
+    }
+    
     // Call the function to get the user's location
     getLocation();
+    
+    // Display a map of the user's location
+
   
 
     // // Create the map and set the initial view to Vienna, Virginia
