@@ -38,8 +38,15 @@
       .bindPopup('Vienna, Virginia')
       .openPopup();
 
-    
+    var heatmap = h337.create({
+      container: domElement
+    });
+
+    heatmap.setData({
+      max: 5,
+      data: [{ x: 10, y: 15, value: 5}, ...]
+    });
   </script>
-  <script src="heatmap.js"></script>
+  <!-- <script src="heatmap.js"></script> -->
 </body>
 </html>
