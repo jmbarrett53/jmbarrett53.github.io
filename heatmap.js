@@ -2,7 +2,7 @@
 function initHeatmap(map) {
     // Example data points (latitude, longitude, intensity)
     const heatmapData = [
-      [38.900, -77.265, 0.5], // Example point with intensity
+      [38.899, -77.265, 0.5], // Example point with intensity
       [38.895, -77.275, 0.2],
       [38.905, -77.250, 0.8],
       [38.890, -77.260, 0.4]
