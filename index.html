@@ -59,28 +59,28 @@
     // Call the function to get the user's location
     userLocation = getLocation();
     alert(`User is located at ${userLocation}`)
-    
-    // Create the map and set the initial view to Vienna, Virginia
-    var map = L.map('map').setView([38.899, -77.265], 13);  // Coordinates for Vienna, VA
 
-    // Add OpenStreetMap tiles
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
+    // // Create the map and set the initial view to Vienna, Virginia
+    // var map = L.map('map').setView([38.899, -77.265], 13);  // Coordinates for Vienna, VA
 
-    // Add a marker at Vienna, Virginia
-    L.marker([38.899, -77.265]).addTo(map)
-      .bindPopup('Vienna, Virginia')
-      .openPopup();
+    // // Add OpenStreetMap tiles
+    // L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    //   attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    // }).addTo(map);
 
-    var heatmap = h337.create({
-      container: domElement
-    });
+    // // Add a marker at Vienna, Virginia
+    // L.marker([38.899, -77.265]).addTo(map)
+    //   .bindPopup('Vienna, Virginia')
+    //   .openPopup();
 
-    heatmap.setData({
-      max: 5,
-      data: [{ x: 10, y: 15, value: 5}, ...]
-    });
+    // var heatmap = h337.create({
+    //   container: domElement
+    // });
+
+    // heatmap.setData({
+    //   max: 5,
+    //   data: [{ x: 10, y: 15, value: 5}, ...]
+    // });
   </script>
   <!-- <script src="heatmap.js"></script> -->
 </body>
