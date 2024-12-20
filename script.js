@@ -51,18 +51,3 @@ function displayMap(mapLattitude, mapLongitude) {
     
 // Call the function to get the user's location
 getLocation();
-
-const { exec } = require('child_process');
-
-// Run the Python script
-exec('python buccees_locator.py ArgumentFromJS', (error, stdout, stderr) => {
-  if (error) {
-    console.error(`Error: ${error.message}`);
-    return;
-  }
-  if (stderr) {
-    console.error(`Stderr: ${stderr}`);
-    return;
-  }
-  console.log(`Output: ${stdout}`);
-});

@@ -3,28 +3,51 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dynamic Traffic Visualizer</title>
-  <!-- Include Leaflet CSS -->
+  <title>Location and Map</title>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-
-  <style>
-    /* Set the size of the map */
-    #map {
-      height: 500px;
-      width: 100%;
-    }
-  </style>
-
 </head>
 <body>
-  
-    <h1>Dynamic Traffic Visualizer</h1>
-    <!-- Create a div to hold the map -->
-  <div id="map"></div>
+  <div id="map" style="height: 500px;"></div>
+  <script>
+    let userLatitude = 0;
+    let userLongitude = 0;
 
+    async function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(async (position) => {
+          userLatitude = position.coords.latitude;
+          userLongitude = position.coords.longitude;
 
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script src="script.js"></script>
-  <!-- <script src="heatmap.js"></script> -->
+          // Display map
+          displayMap(userLatitude, userLongitude);
+
+          // Send location to backend
+          const response = await fetch('http://localhost:3000/location', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ latitude: userLatitude, longitude: userLongitude }),
+          });
+          const data = await response.text();
+          console.log('Python Output:', data);
+        });
+      } else {
+        console.log("Geolocation is not supported by this browser.");
+      }
+    }
+
+    function displayMap(lat, lon) {
+      var map = L.map('map').setView([lat, lon], 13);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+      }).addTo(map);
+
+      L.marker([lat, lon]).addTo(map)
+        .bindPopup('Your Location')
+        .openPopup();
+    }
+
+    getLocation();
+  </script>
 </body>
 </html>
