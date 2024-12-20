@@ -12,5 +12,7 @@ with open('BuceesLocations.csv', mode='r') as file:
 
         location_tuples.append((lattitude, longitude))
 
-print(location_tuples, sys.argv[1])
+print('Current Latitude is: ' + sys.argv[1])
+print('Current Longitude is: ' + sys.argv[2])
+print(location_tuples)
 # Now calculate the euclidean distance between you
