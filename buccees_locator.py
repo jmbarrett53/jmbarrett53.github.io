@@ -19,12 +19,12 @@ def get_dist_to_nearest_buccees(lat_in, long_in):
     """
     min_dist = float('inf')
     for buccees_loc in location_tuples:
-        buc_lattitude = buccees_loc[0]
-        buc_longitude = buccees_loc[1]
+        buc_lattitude = float(buccees_loc[0])
+        buc_longitude = float(buccees_loc[1])
 
         # Get differences
-        delta_lat = lat_in - buc_lattitude
-        delta_long = long_in - buc_longitude
+        delta_lat = float(lat_in) - buc_lattitude
+        delta_long = float(long_in) - buc_longitude
 
         # Convert differences to miles
         x = 69 * delta_lat
