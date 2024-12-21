@@ -19,41 +19,11 @@ async function getLocation() {
       // Next line will return as a string
       const py_output_str = await response.text();
       console.log('Python Output:', py_output_str);
-
-      // Parse the tuple string into coordinates
-      const coordinates = parseCoordinates(pyOutputStr);
-
-      // Add the new marker to the map
-      if (coordinates) {
-        addMarkerToMap(coordinates[0], coordinates[1]);
-      }
-      
     });
   } else {
     console.log("Geolocation is not supported by this browser.");
   }
 }
-
-// Function to parse tuple string into an array of numbers
-function parseCoordinates(tupleStr) {
-  try {
-    // Remove parentheses and split by comma
-    const stripped = tupleStr.replace(/[()']/g, '').trim();
-    const [lat, lon] = stripped.split(',').map(Number);
-
-    // Ensure parsed values are valid numbers
-    if (!isNaN(lat) && !isNaN(lon)) {
-      return [lat, lon];
-    } else {
-      console.error('Invalid coordinates received:', tupleStr);
-      return null;
-    }
-  } catch (error) {
-    console.error('Error parsing coordinates:', error);
-    return null;
-  }
-}
-
 
 function displayMap(lat, lon) {
   var map = L.map('map').setView([lat, lon], 13);
