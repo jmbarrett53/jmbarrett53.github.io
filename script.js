@@ -34,26 +34,6 @@ async function getLocation() {
   }
 }
 
-// Function to parse tuple string into an array of numbers
-function parseCoordinates(tupleStr) {
-  try {
-    // Remove parentheses and split by comma
-    const stripped = tupleStr.replace(/[()']/g, '').trim();
-    const [lat, lon] = stripped.split(',').map(Number);
-
-    // Ensure parsed values are valid numbers
-    if (!isNaN(lat) && !isNaN(lon)) {
-      return [lat, lon];
-    } else {
-      console.error('Invalid coordinates received:', tupleStr);
-      return null;
-    }
-  } catch (error) {
-    console.error('Error parsing coordinates:', error);
-    return null;
-  }
-}
-
 function displayMap(lat, lon) {
   var map = L.map('map').setView([lat, lon], 13);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -62,13 +42,6 @@ function displayMap(lat, lon) {
 
   L.marker([lat, lon]).addTo(map)
     .bindPopup('Your Location')
-    .openPopup();
-}
-
-// Function to add a marker to the map
-function addMarkerToMap(lat, lon) {
-  L.marker([lat, lon]).addTo(map)
-    .bindPopup(`New Location: ${lat}, ${lon}`)
     .openPopup();
 }
 
