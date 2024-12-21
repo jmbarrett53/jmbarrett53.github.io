@@ -17,14 +17,14 @@ async function getLocation() {
         body: JSON.stringify({ latitude: userLatitude, longitude: userLongitude }),
       });
       // Next line will return as a string
-      const py_output_str = await response.text();
-      console.log('Python Output:', py_output_str);
+      const pyOutputStr = await response.text();
+      console.log('Python Output:', pyOutputStr);
 
       // Parse the tuple string into coordinates
       const coordinates = parseCoordinates(pyOutputStr);
 
-       // Add the new marker to the map
-       if (coordinates) {
+      // Add the new marker to the map
+      if (coordinates) {
         addMarkerToMap(coordinates[0], coordinates[1]);
       }
 
