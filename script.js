@@ -16,41 +16,12 @@ async function getLocation() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ latitude: userLatitude, longitude: userLongitude }),
       });
-      // Next line will return as a string (e.g., "('34.727','-79.2095')")
-      const pyOutputStr = await response.text();
-      console.log('Python Output:', pyOutputStr);
-
-      // Parse the tuple string into coords
-      const coordinates = parseCoordinates(pyOutputStr);
-
-      // Add the new marker to the map
-      if (coordinates) {
-        addMarkerToMap(coordinates[0], coordinates[1]);
-      }
-      
+      // Next line will return as a string
+      const py_output_str = await response.text();
+      console.log('Python Output:', py_output_str);
     });
   } else {
     console.log("Geolocation is not supported by this browser.");
-  }
-}
-
-// Function to parse tuple string into an array of numbers
-function parseCoordinates(tupleStr) {
-  try {
-    // Remove parentheses and split by comma
-    const stripped = tupleStr.replace(/[()']/g, '').trim();
-    const [lat, lon] = stripped.split(',').map(Number);
-
-    // Ensure parsed values are valid numbers
-    if (!isNaN(lat) && !isNaN(lon)) {
-      return [lat, lon];
-    } else {
-      console.error('Invalid coordinates received:', tupleStr);
-      return null;
-    }
-  } catch (error) {
-    console.error('Error parsing coordinates:', error);
-    return null;
   }
 }
 
@@ -62,13 +33,6 @@ function displayMap(lat, lon) {
 
   L.marker([lat, lon]).addTo(map)
     .bindPopup('Your Location')
-    .openPopup();
-}
-
-// Function to add a marker to the map
-function addMarkerToMap(lat, lon) {
-  L.marker([lat, lon]).addTo(map)
-    .bindPopup(`New Location: ${lat}, ${lon}`)
     .openPopup();
 }
 
