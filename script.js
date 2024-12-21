@@ -86,4 +86,8 @@ function addMarkerToMap(lat, lon) {
     .openPopup();
 }
 
+function myFunction() {
+  alert('Button was clicked!');
+}
+
 getLocation();
