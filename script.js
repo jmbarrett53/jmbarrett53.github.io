@@ -22,11 +22,13 @@ async function getLocation() {
 
       // Parse the tuple string into coordinates
       const coordinates = parseCoordinates(pyOutputStr);
+      let bucLat;
+      let bucLong;
 
       // Add the new marker to the map
       if (coordinates) {
-        const bucLat = coordinates[0];
-        const bucLong = coordinates[1];
+        bucLat = coordinates[0];
+        bucLong = coordinates[1];
       }
       else {
         console.log("Invalid Coordinates")
