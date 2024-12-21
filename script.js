@@ -19,6 +19,15 @@ async function getLocation() {
       // Next line will return as a string
       const py_output_str = await response.text();
       console.log('Python Output:', py_output_str);
+
+      // Parse the tuple string into coordinates
+      const coordinates = parseCoordinates(pyOutputStr);
+
+       // Add the new marker to the map
+       if (coordinates) {
+        addMarkerToMap(coordinates[0], coordinates[1]);
+      }
+
     });
   } else {
     console.log("Geolocation is not supported by this browser.");
