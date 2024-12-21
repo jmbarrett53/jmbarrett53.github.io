@@ -16,8 +16,9 @@ async function getLocation() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ latitude: userLatitude, longitude: userLongitude }),
       });
-      const data = await response.text();
-      console.log('Python Output:', data);
+      // Next line will return as a string
+      const py_output_str = await response.text();
+      console.log('Python Output:', py_output_str);
     });
   } else {
     console.log("Geolocation is not supported by this browser.");
