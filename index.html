@@ -8,9 +8,15 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 </head>
 <body>
+  <h1>Store Locations</h1>
   <div id="map" style="height: 500px;"></div>
-  <script src="script.js">  </script>
+  <!-- <script src="script.js">  </script> -->
 
+  <!-- <div id="map"></div> -->
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  <script src="map.js"></script>
 
   <button onclick="myFunction()">Click Me</button>
   <script>
@@ -19,12 +25,6 @@
         alert('Button was clicked!');
     }
   </script>
-
-  <h1>Store Locations</h1>
-  <div id="map"></div>
-
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-  <script src="map.js"></script>
+  
 </body>
 </html>
