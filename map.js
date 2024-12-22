@@ -16,10 +16,11 @@ Papa.parse("processed_stores.csv", {
             if (row.latitude && row.longitude) {
                 const lat = parseFloat(row.latitude);
                 const lng = parseFloat(row.longitude);
+                const name = row["Store Name"]; // Correct column name
 
                 // Add a marker for each store
                 const marker = L.marker([lat, lng]).addTo(map);
-                marker.bindPopup(`<b>${row["Store Name"]}</b>`); // Store name popup
+                marker.bindPopup(`<b>${name}</b>`); // Store name popup
 
                 // Add a shaded circle around the store
                 L.circle([lat, lng], {
