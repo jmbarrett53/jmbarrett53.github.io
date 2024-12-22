@@ -14,9 +14,20 @@ Papa.parse("processed_stores.csv", {
         const data = results.data;
         data.forEach(row => {
             if (row.latitude && row.longitude) {
+                const lat = parseFloat(row.latitude);
+                const lng = parseFloat(row.longitude);
+
                 // Add a marker for each store
-                const marker = L.marker([parseFloat(row.latitude), parseFloat(row.longitude)]).addTo(map);
-                marker.bindPopup(`<b>${row.store_name}</b>`); // Add store name as a popup
+                const marker = L.marker([lat, lng]).addTo(map);
+                marker.bindPopup(`<b>${row["Store Name"]}</b>`); // Store name popup
+
+                // Add a shaded circle around the store
+                L.circle([lat, lng], {
+                    color: 'blue',       // Circle border color
+                    fillColor: 'lightblue', // Shaded fill color
+                    fillOpacity: 0.3,   // Transparency of the fill
+                    radius: 5000        // Radius in meters (5 km in this case)
+                }).addTo(map);
             }
         });
     }
