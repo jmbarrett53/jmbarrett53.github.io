@@ -14,6 +14,7 @@
     A food desert is an area where access to affordable, nutritious food is limited or nonexistent due to the absence of nearby grocery stores, supermarkets, or other sources of fresh food. These areas are often characterized by a lack of fresh fruits, vegetables, and other whole foods, which are typically available at full-service grocery stores.
   </p>
   <button id="addButton">Toggle Grocery Retailers</button>
+  <button id="clearButton">Reset Map</button>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
@@ -51,7 +52,7 @@
                         addedLayers.push(marker); // Track marker
 
                         // Add a shaded circle around the store
-                        L.circle([lat, lng], {
+                        const circle = L.circle([lat, lng], {
                             color: 'blue',       // Circle border color
                             fillColor: 'lightblue', // Shaded fill color
                             fillOpacity: 0.1,   // Transparency of the fill
@@ -66,6 +67,17 @@
     // Attach click event to the "Add Layers" button
     document.getElementById('addButton').addEventListener('click', addStores);
     
+    // Reset Button Functionality
+    document.getElementById('clearButton').addEventListener('click', function() {
+      // iterate through layers and remove
+      addedLayers.forEach(layer => {
+        map.removeLayer(layer);
+      });
+      // clear array
+      addedLayers.length = 0;
+    });
+    
+
   </script>
 
   <!-- <script src="map.js"></script> -->
