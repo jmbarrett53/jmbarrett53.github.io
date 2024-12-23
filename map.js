@@ -41,7 +41,13 @@ async function highlightCounties(csvFilePath, geojsonFilePath) {
         const csvResponse = await fetch(csvFilePath);
         const csvText = await csvResponse.text();
         const csvData = Papa.parse(csvText, { header: true }).data;
-        const highlightCounties = csvData.map(row => row.CountyName.trim());
+
+        // Extract county names from CSV and normalize (trim and lowercase)
+        const highlightCounties = csvData
+            .filter(row => row.CountyName && row.CountyName.trim()) // Filter rows with valid CountyName
+            .map(row => row.CountyName.trim().toLowerCase()); // Normalize to lowercase
+
+        console.log('Counties to highlight:', highlightCounties);
 
         // Load the GeoJSON file
         const geojsonResponse = await fetch(geojsonFilePath);
@@ -50,7 +56,11 @@ async function highlightCounties(csvFilePath, geojsonFilePath) {
         // Add GeoJSON layer with conditional styling
         L.geoJSON(geojsonData, {
             style: function (feature) {
-                if (highlightCounties.includes(feature.properties.NAME)) {
+                // Normalize GeoJSON county names to lowercase for comparison
+                const geoCountyName = feature.properties.NAME.trim().toLowerCase();
+
+                // Highlight counties only if they are in the CSV list
+                if (highlightCounties.includes(geoCountyName)) {
                     return { color: 'red', weight: 2, fillColor: 'yellow', fillOpacity: 0.6 };
                 } else {
                     return { color: 'blue', weight: 1, fillOpacity: 0.3 };
