@@ -26,7 +26,7 @@ Papa.parse("processed_stores.csv", {
                 L.circle([lat, lng], {
                     color: 'blue',       // Circle border color
                     fillColor: 'lightblue', // Shaded fill color
-                    fillOpacity: 0.3,   // Transparency of the fill
+                    fillOpacity: 0.1,   // Transparency of the fill
                     radius: 16093     // Radius in meters (10 mile radius around each grocery retailer)
                 }).addTo(map);
             }
