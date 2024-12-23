@@ -57,7 +57,7 @@ async function highlightCounties(csvFilePath, geojsonFilePath) {
         L.geoJSON(geojsonData, {
             style: function (feature) {
                 // Check if the 'NAME' property exists before attempting to process it
-                const geoCountyName = feature.properties.NAME ? feature.properties.NAME.trim().toLowerCase() : null;
+                const geoCountyName = feature.properties.name ? feature.properties.name.trim().toLowerCase() : null;
 
                 console.log(geoCountyName);
 
@@ -69,7 +69,7 @@ async function highlightCounties(csvFilePath, geojsonFilePath) {
                 }
             },
             onEachFeature: function (feature, layer) {
-                layer.bindPopup(`County: ${feature.properties.NAME}`);
+                layer.bindPopup(`County: ${feature.properties.name}`);
             }
         }).addTo(map);
     } catch (error) {
