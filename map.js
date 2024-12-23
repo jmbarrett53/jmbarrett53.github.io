@@ -56,11 +56,11 @@ async function highlightCounties(csvFilePath, geojsonFilePath) {
         // Add GeoJSON layer with conditional styling
         L.geoJSON(geojsonData, {
             style: function (feature) {
-                // Normalize GeoJSON county names to lowercase for comparison
-                const geoCountyName = feature.properties.NAME.trim().toLowerCase();
+                // Check if the 'NAME' property exists before attempting to process it
+                const geoCountyName = feature.properties.NAME ? feature.properties.NAME.trim().toLowerCase() : null;
 
-                // Highlight counties only if they are in the CSV list
-                if (highlightCounties.includes(geoCountyName)) {
+                // Only style counties with a valid 'NAME' property
+                if (geoCountyName && highlightCounties.includes(geoCountyName)) {
                     return { color: 'red', weight: 2, fillColor: 'yellow', fillOpacity: 0.6 };
                 } else {
                     return { color: 'blue', weight: 1, fillOpacity: 0.3 };
