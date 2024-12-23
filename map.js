@@ -59,6 +59,8 @@ async function highlightCounties(csvFilePath, geojsonFilePath) {
                 // Check if the 'NAME' property exists before attempting to process it
                 const geoCountyName = feature.properties.NAME ? feature.properties.NAME.trim().toLowerCase() : null;
 
+                console.log(geoCountyName);
+
                 // Only style counties with a valid 'NAME' property
                 if (geoCountyName && highlightCounties.includes(geoCountyName)) {
                     return { color: 'red', weight: 2, fillColor: 'yellow', fillOpacity: 0.6 };
