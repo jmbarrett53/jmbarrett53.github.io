@@ -33,3 +33,37 @@ Papa.parse("processed_stores.csv", {
         });
     }
 });
+
+// Function to highlight counties from CSV and apply them to GeoJSON
+async function highlightCounties(csvFilePath, geojsonFilePath) {
+    try {
+        // Load the CSV file
+        const csvResponse = await fetch(csvFilePath);
+        const csvText = await csvResponse.text();
+        const csvData = Papa.parse(csvText, { header: true }).data;
+        const highlightCounties = csvData.map(row => row.CountyName.trim());
+
+        // Load the GeoJSON file
+        const geojsonResponse = await fetch(geojsonFilePath);
+        const geojsonData = await geojsonResponse.json();
+
+        // Add GeoJSON layer with conditional styling
+        L.geoJSON(geojsonData, {
+            style: function (feature) {
+                if (highlightCounties.includes(feature.properties.NAME)) {
+                    return { color: 'red', weight: 2, fillColor: 'yellow', fillOpacity: 0.6 };
+                } else {
+                    return { color: 'blue', weight: 1, fillOpacity: 0.3 };
+                }
+            },
+            onEachFeature: function (feature, layer) {
+                layer.bindPopup(`County: ${feature.properties.NAME}`);
+            }
+        }).addTo(map);
+    } catch (error) {
+        console.error('Error loading files:', error);
+    }
+}
+
+// Call the function with paths to your CSV and GeoJSON files
+highlightCounties('AL_county_econ_data.csv', 'alabama_counties.geojson');
