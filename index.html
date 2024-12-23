@@ -39,6 +39,7 @@
       if (addedLayers.length > 0) {
         addedLayers.forEach(layer => map.removeLayer(layer));
         addedLayers.length = 0;
+        return;
       }
         // Load the CSV file
         Papa.parse("processed_stores.csv", {
@@ -77,6 +78,7 @@
       if (countyLayers.length > 0) {
         countyLayers.forEach(layer => map.removeLayer(layer));
         countyLayers.length = 0;
+        return;
       }
         try {
             // Load the CSV file
