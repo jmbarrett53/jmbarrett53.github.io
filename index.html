@@ -10,25 +10,66 @@
 <body>
   <h1>Alabama Food Desert Visualization</h1>
   <div id="map" style="height: 500px;"></div>
-  <!-- <script src="script.js">  </script> -->
-
-  <!-- <div id="map"></div> -->
-
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-  <script src="map.js"></script>
-
   <p> 
     A food desert is an area where access to affordable, nutritious food is limited or nonexistent due to the absence of nearby grocery stores, supermarkets, or other sources of fresh food. These areas are often characterized by a lack of fresh fruits, vegetables, and other whole foods, which are typically available at full-service grocery stores.
   </p>
+  <button id="addButton">Toggle Grocery Retailers</button>
 
-  <button onclick="displayStores()">Toggle Grocery Retailers</button>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+
+  
+
   <script>
-    // JavaScript function that runs when the button is clicked
-    function displayStores() {
-        alert('Display Stores Button was clicked!');
+    // Initialize the map centered on Alabama
+    const map = L.map('map').setView([32.806671, -86.791130], 7); // Zoom level 7
+
+    // Add a tile layer (OpenStreetMap)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: 'Map data © <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
+    }).addTo(map);
+    
+    // Track added layers
+    const addedLayers = [];
+    
+    function addStores() {
+        // Load the CSV file
+        Papa.parse("processed_stores.csv", {
+            download: true,
+            header: true,
+            complete: function(results) {
+                const data = results.data;
+                data.forEach(row => {
+                    if (row.latitude && row.longitude) {
+                        const lat = parseFloat(row.latitude);
+                        const lng = parseFloat(row.longitude);
+                        const name = row["Store Name"]; // Correct column name
+
+                        // Add a marker for each store
+                        const marker = L.marker([lat, lng]).addTo(map);
+                        marker.bindPopup(`<b>${name}</b>`); // Store name popup
+                        addedLayers.push(marker); // Track marker
+
+                        // Add a shaded circle around the store
+                        L.circle([lat, lng], {
+                            color: 'blue',       // Circle border color
+                            fillColor: 'lightblue', // Shaded fill color
+                            fillOpacity: 0.1,   // Transparency of the fill
+                            radius: 16093     // Radius in meters (10 mile radius around each grocery retailer)
+                        }).addTo(map);
+                        addedLayers.push(circle); // Track circle
+                    }
+                });
+            }
+        });
     }
+    // Attach click event to the "Add Layers" button
+    document.getElementById('addButton').addEventListener('click', addLayers);
+    
   </script>
+
+  <!-- <script src="map.js"></script> -->
+
 
 <button onclick="displayCounties()">Toggle Qualifying Counties</button>
 <script>
