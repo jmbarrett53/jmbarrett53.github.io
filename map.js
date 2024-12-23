@@ -27,7 +27,7 @@ Papa.parse("processed_stores.csv", {
                     color: 'blue',       // Circle border color
                     fillColor: 'lightblue', // Shaded fill color
                     fillOpacity: 0.3,   // Transparency of the fill
-                    radius: 24140     // Radius in meters (5 km in this case)
+                    radius: 16093     // Radius in meters (10 mile radius around each grocery retailer)
                 }).addTo(map);
             }
         });
