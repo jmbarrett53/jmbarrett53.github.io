@@ -1,0 +1,45 @@
+{
+  "meta": {
+    "name": "Jack",
+    "lastUpdated": "2026-06-12"
+  },
+  "fitness": {
+    "whoop": {
+      "todayRecovery": 74,
+      "todayStrain": 8.2,
+      "todaySleepPerformance": 81,
+      "hrv": 62,
+      "restingHeartRate": 52,
+      "respiratoryRate": 16.1,
+      "weeklyLabels": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+      "weeklyRecovery": [68, 45, 82, 74, 90, 55, 74],
+      "weeklyStrain": [9.1, 6.5, 11.2, 8.2, 12.1, 5.8, 8.2],
+      "weeklySleep": [75, 68, 88, 81, 79, 62, 81],
+      "weeklyHRV": [58, 52, 70, 62, 68, 48, 62]
+    }
+  },
+  "financial": {
+    "checking": 2840,
+    "savings": 1200,
+    "monthlyIncome": 3800,
+    "studentDebt": {
+      "balance": 28500,
+      "originalBalance": 35000,
+      "interestRate": 5.05,
+      "monthlyPayment": 310
+    },
+    "monthlyExpenses": {
+      "Housing": 1100,
+      "Food": 420,
+      "Transportation": 180,
+      "Subscriptions": 85,
+      "Student Loan": 310,
+      "Other": 340
+    },
+    "lastSixMonths": {
+      "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+      "income": [3800, 3800, 3950, 3800, 3800, 3800],
+      "expenses": [2350, 2180, 2490, 2320, 2410, 2435]
+    }
+  }
+}

@@ -1,173 +1,516 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Location and Map</title>
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jack's Health OS</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0d0f14;
+      --surface:  #161b24;
+      --surface2: #1e2535;
+      --border:   #2a3348;
+      --text:     #e2e8f0;
+      --muted:    #7a8aaa;
+      --green:    #22c55e;
+      --yellow:   #eab308;
+      --red:      #ef4444;
+      --blue:     #3b82f6;
+      --purple:   #a855f7;
+      --cyan:     #06b6d4;
+      --orange:   #f97316;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .header h1 { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.02em; }
+    .header h1 span { color: var(--blue); }
+    .header p { color: var(--muted); font-size: 0.85rem; margin-top: 2px; }
+    .header-right { display: flex; gap: 10px; align-items: center; }
+
+    .score-badge {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 8px 16px;
+    }
+    .score-num { font-size: 1.5rem; font-weight: 800; }
+    .score-lbl { font-size: 0.7rem; color: var(--muted); line-height: 1.3; }
+
+    .last-updated {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 6px 14px;
+      font-size: 0.8rem; color: var(--muted);
+    }
+    .last-updated strong { color: var(--text); }
+
+    /* Section label */
+    .section-label {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--muted);
+      margin-bottom: 14px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    /* Layout */
+    .main-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 20px; margin-bottom: 20px;
+    }
+    @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
+
+    /* Cards */
+    .card  { background: var(--surface);  border: 1px solid var(--border); border-radius: 14px; padding: 18px; }
+    .card2 { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+
+    /* Metric tiles */
+    .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    .tile {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 14px;
+      position: relative; overflow: hidden;
+    }
+    .tile::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0;
+      height: 3px; border-radius: 10px 10px 0 0;
+    }
+    .tile.c-green::before  { background: var(--green); }
+    .tile.c-yellow::before { background: var(--yellow); }
+    .tile.c-blue::before   { background: var(--blue); }
+    .tile.c-purple::before { background: var(--purple); }
+    .tile.c-cyan::before   { background: var(--cyan); }
+    .tile.c-orange::before { background: var(--orange); }
+    .tile.c-red::before    { background: var(--red); }
+
+    .t-label { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+    .t-value { font-size: 1.8rem; font-weight: 700; line-height: 1; letter-spacing: -0.03em; }
+    .t-unit  { font-size: 0.9rem; font-weight: 400; color: var(--muted); margin-left: 2px; }
+    .t-sub   { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
+
+    /* Recovery hero */
+    .recovery-hero { display: flex; align-items: center; gap: 20px; margin-bottom: 16px; }
+    .ring-wrap { position: relative; width: 100px; height: 100px; flex-shrink: 0; }
+    .ring-wrap canvas { width: 100px !important; height: 100px !important; }
+    .ring-center {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      pointer-events: none;
+    }
+    .ring-pct  { font-size: 1.5rem; font-weight: 800; line-height: 1; }
+    .ring-lbl  { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+    .rec-details h3 { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+    .rec-details p  { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+    /* Chart wrappers */
+    .chart-title { font-size: 0.75rem; font-weight: 600; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.06em; }
+    .chart-h   { position: relative; height: 120px; }
+    .chart-h-sm{ position: relative; height: 100px; }
+
+    /* Financial */
+    .cash-row { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 16px; }
+    .cash-total { font-size: 2.4rem; font-weight: 800; letter-spacing: -0.04em; }
+    .cash-total span { color: var(--green); }
+    .cash-side { text-align: right; font-size: 0.78rem; color: var(--muted); line-height: 1.8; }
+
+    .debt-bar-bg  { height: 10px; background: var(--surface2); border-radius: 99px; overflow: hidden; margin: 6px 0 4px; }
+    .debt-bar-fill{ height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--red), var(--orange)); }
+    .debt-meta    { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--muted); }
+
+    .donut-row { display: grid; grid-template-columns: 130px 1fr; gap: 16px; align-items: center; }
+    .legend    { font-size: 0.76rem; line-height: 2; }
+    .dot       { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+
+    /* Recommendations */
+    .recs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    @media (max-width: 760px) { .recs-grid { grid-template-columns: 1fr; } }
+    .rec {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; padding: 18px;
+      border-left: 4px solid transparent;
+    }
+    .rec.p-high { border-left-color: var(--red); }
+    .rec.p-med  { border-left-color: var(--yellow); }
+    .rec.p-low  { border-left-color: var(--green); }
+    .rec-tag {
+      display: inline-block; font-size: 0.65rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 2px 8px; border-radius: 4px; margin-bottom: 8px;
+    }
+    .p-high .rec-tag { background: rgba(239,68,68,0.15);  color: var(--red); }
+    .p-med  .rec-tag { background: rgba(234,179,8,0.15);  color: var(--yellow); }
+    .p-low  .rec-tag { background: rgba(34,197,94,0.15);  color: var(--green); }
+    .rec-title  { font-size: 0.95rem; font-weight: 700; margin-bottom: 6px; }
+    .rec-body   { font-size: 0.8rem; color: var(--muted); line-height: 1.55; }
+    .rec-action { margin-top: 10px; font-size: 0.75rem; font-weight: 600; color: var(--blue); }
+
+    .mb14 { margin-bottom: 14px; }
+    .mb10 { margin-bottom: 10px; }
+  </style>
 </head>
 <body>
-  <h1>Alabama Food Desert Visualization</h1>
-  <div id="map" style="height: 500px;"></div>
-  <button id="addButton">Toggle Grocery Retailers</button>
-  <button id="countyButton">Toggle Qualifying Counties</button>
-  <button id="clearButton">Reset Map</button>
 
-  <p> 
-    A food desert is an area where access to affordable, nutritious food is limited or nonexistent due to the absence of nearby grocery stores, supermarkets, or other sources of fresh food. These areas are often characterized by a lack of fresh fruits, vegetables, and other whole foods, which are typically available at full-service grocery stores.
-  </p>
+<!-- Header -->
+<div class="header">
+  <div>
+    <h1><span>Jack's</span> Health OS</h1>
+    <p>Fitness · Financial · Recommendations</p>
+  </div>
+  <div class="header-right">
+    <div class="score-badge">
+      <div class="score-num" id="overallScore">—</div>
+      <div class="score-lbl">Overall<br>Score</div>
+    </div>
+    <div class="last-updated">Updated: <strong id="lastUpdated">—</strong></div>
+  </div>
+</div>
 
-  <p>
+<!-- Two-column main -->
+<div class="main-grid">
 
-  </p>
+  <!-- ═══ FITNESS ═══ -->
+  <div>
+    <div class="section-label">Fitness — WHOOP</div>
+    <div class="card">
 
-  <p>
-    Food deserts are communities that are low-income and have restricted access to food retailers.
-  </p>
-  
-  <p>
-    The USDA deines "low-access" as households that are 10 miles or more from a food retailer.
-  </p>
-    
-  <p>
-    Low-income counties are defined as counties exceeding a 20% poverty rate, OR counties in which the median family income is less than 80% of the statewide median income.
-    For Alabama, that's any county with a median family income of $41,628 or less
-  </p>
+      <div class="recovery-hero">
+        <div class="ring-wrap">
+          <canvas id="recoveryRing"></canvas>
+          <div class="ring-center">
+            <div class="ring-pct" id="recoveryPct">—</div>
+            <div class="ring-lbl">Recovery</div>
+          </div>
+        </div>
+        <div class="rec-details">
+          <h3 id="recoveryLabel">—</h3>
+          <p id="recoveryDesc">Loading…</p>
+        </div>
+      </div>
 
-  
-  
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+      <div class="metric-grid">
+        <div class="tile c-blue">
+          <div class="t-label">HRV</div>
+          <div class="t-value" id="hrv">—<span class="t-unit">ms</span></div>
+          <div class="t-sub">Heart Rate Variability</div>
+        </div>
+        <div class="tile c-purple">
+          <div class="t-label">Resting HR</div>
+          <div class="t-value" id="rhr">—<span class="t-unit">bpm</span></div>
+          <div class="t-sub">Lower is better</div>
+        </div>
+        <div class="tile c-orange">
+          <div class="t-label">Day Strain</div>
+          <div class="t-value" id="strain">—</div>
+          <div class="t-sub">Out of 21</div>
+        </div>
+        <div class="tile c-cyan">
+          <div class="t-label">Sleep Perf.</div>
+          <div class="t-value" id="sleep">—<span class="t-unit">%</span></div>
+          <div class="t-sub">Last night</div>
+        </div>
+      </div>
 
-  
+      <div class="card2 mb10">
+        <div class="chart-title">7-Day Recovery &amp; HRV</div>
+        <div class="chart-h"><canvas id="recoveryChart"></canvas></div>
+      </div>
+      <div class="card2">
+        <div class="chart-title">7-Day Sleep &amp; Strain</div>
+        <div class="chart-h"><canvas id="sleepStrainChart"></canvas></div>
+      </div>
 
-  <script>
-    // Initialize the map centered on Alabama
-    const map = L.map('map').setView([32.806671, -86.791130], 7); // Zoom level 7
+    </div>
+  </div>
 
-    // Add a tile layer (OpenStreetMap)
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: 'Map data © <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
-    }).addTo(map);
-    
-    // Track added layers and counties
-    const addedLayers = [];
-    const countyLayers = [];
-    
-    function addStores() {
-      if (addedLayers.length > 0) {
-        addedLayers.forEach(layer => map.removeLayer(layer));
-        addedLayers.length = 0;
-        return;
+  <!-- ═══ FINANCIAL ═══ -->
+  <div>
+    <div class="section-label">Financial — PNC</div>
+    <div class="card">
+
+      <div class="cash-row">
+        <div>
+          <div class="t-label">Total Cash</div>
+          <div class="cash-total"><span id="totalCash">—</span></div>
+          <div class="t-sub" id="monthsCovered">— months expenses</div>
+        </div>
+        <div class="cash-side">
+          <div>Checking: <strong id="checking">—</strong></div>
+          <div>Savings: <strong id="savings">—</strong></div>
+          <div>Net worth: <strong id="netWorth">—</strong></div>
+        </div>
+      </div>
+
+      <div class="card2 mb14">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;">
+          <div class="chart-title">Student Loan</div>
+          <div style="font-size:0.8rem;color:var(--muted);" id="debtPctLabel">—% paid</div>
+        </div>
+        <div class="debt-bar-bg">
+          <div class="debt-bar-fill" id="debtBar" style="width:0%"></div>
+        </div>
+        <div class="debt-meta mb10">
+          <span id="debtBalance">—</span>
+          <span id="debtPayoff">Payoff est. —</span>
+        </div>
+        <div class="debt-meta">
+          <span id="debtRate">—</span>
+          <span id="debtMonthly">—</span>
+        </div>
+      </div>
+
+      <div class="card2 mb14">
+        <div class="chart-title">Monthly Income vs. Expenses (6 months)</div>
+        <div class="chart-h"><canvas id="cashFlowChart"></canvas></div>
+      </div>
+
+      <div class="card2">
+        <div class="chart-title">Spending Breakdown — This Month</div>
+        <div class="donut-row">
+          <div style="position:relative;width:120px;height:120px;">
+            <canvas id="expenseDonut"></canvas>
+          </div>
+          <div class="legend" id="expenseLegend">Loading…</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- Recommendations -->
+<div class="section-label">Personalized Recommendations</div>
+<div class="recs-grid" id="recsGrid">
+  <div class="rec"><div class="rec-body">Loading…</div></div>
+</div>
+
+<script>
+const COLORS = ['#3b82f6','#a855f7','#06b6d4','#f97316','#ef4444','#22c55e','#eab308'];
+
+const fmt = n => '$' + Math.abs(n).toLocaleString('en-US');
+
+function rcColor(v) {
+  return v >= 67 ? '#22c55e' : v >= 34 ? '#eab308' : '#ef4444';
+}
+
+function rcMeta(v) {
+  if (v >= 67) return ['Green — Ready to perform', 'Body is recovered and primed. Good day to push intensity.'];
+  if (v >= 34) return ['Yellow — Proceed with caution', 'Moderate recovery. Avoid all-out efforts today.'];
+  return ['Red — Rest day recommended', 'Under-recovered. Prioritize sleep and easy movement.'];
+}
+
+function ring(id, pct, color) {
+  new Chart(document.getElementById(id), {
+    type: 'doughnut',
+    data: { datasets: [{ data: [pct, 100 - pct], backgroundColor: [color, '#1e2535'], borderWidth: 0, circumference: 270, rotation: 225 }] },
+    options: { cutout: '76%', plugins: { legend: { display: false }, tooltip: { enabled: false } } }
+  });
+}
+
+function lineChart(id, labels, datasets) {
+  new Chart(document.getElementById(id), {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: true, labels: { color: '#7a8aaa', font: { size: 10 }, boxWidth: 10, padding: 8 } },
+        tooltip: { backgroundColor: '#1e2535', borderColor: '#2a3348', borderWidth: 1 }
+      },
+      scales: {
+        x: { ticks: { color: '#7a8aaa', font: { size: 10 } }, grid: { color: '#2a3348' } },
+        y: { ticks: { color: '#7a8aaa', font: { size: 10 } }, grid: { color: '#2a3348' } }
       }
-        // Load the CSV file
-        Papa.parse("processed_stores.csv", {
-            download: true,
-            header: true,
-            complete: function(results) {
-                const data = results.data;
-                data.forEach(row => {
-                    if (row.latitude && row.longitude) {
-                        const lat = parseFloat(row.latitude);
-                        const lng = parseFloat(row.longitude);
-                        const name = row["Store Name"]; // Correct column name
-
-                        // Add a marker for each store
-                        const marker = L.marker([lat, lng]).addTo(map);
-                        marker.bindPopup(`<b>${name}</b>`); // Store name popup
-                        addedLayers.push(marker); // Track marker
-
-                        // Add a shaded circle around the store
-                        const circle = L.circle([lat, lng], {
-                            color: 'blue',       // Circle border color
-                            fillColor: 'lightblue', // Shaded fill color
-                            fillOpacity: 0.1,   // Transparency of the fill
-                            radius: 16093     // Radius in meters (10 mile radius around each grocery retailer)
-                        }).addTo(map);
-                        addedLayers.push(circle); // Track circle
-                    }
-                });
-            }
-        });
     }
+  });
+}
 
-    // Function to highlight counties from CSV and apply them to GeoJSON
-    async function highlightCounties() {
-      // If counties are already on the map, then remove them
-      if (countyLayers.length > 0) {
-        countyLayers.forEach(layer => map.removeLayer(layer));
-        countyLayers.length = 0;
-        return;
+function barChart(id, labels, datasets) {
+  new Chart(document.getElementById(id), {
+    type: 'bar',
+    data: { labels, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: true, labels: { color: '#7a8aaa', font: { size: 10 }, boxWidth: 10, padding: 8 } },
+        tooltip: { backgroundColor: '#1e2535', borderColor: '#2a3348', borderWidth: 1 }
+      },
+      scales: {
+        x: { ticks: { color: '#7a8aaa', font: { size: 10 } }, grid: { display: false } },
+        y: { ticks: { color: '#7a8aaa', font: { size: 10 } }, grid: { color: '#2a3348' } }
       }
-        try {
-            // Load the CSV file
-            const csvResponse = await fetch('AL_county_econ_data.csv');
-            const csvText = await csvResponse.text();
-            const csvData = Papa.parse(csvText, { header: true }).data;
-
-            // Extract county names from CSV and normalize (trim and lowercase)
-            const highlightCounties = csvData
-                .filter(row => row.CountyName && row.CountyName.trim()) // Filter rows with valid CountyName
-                .map(row => row.CountyName.trim().toLowerCase()); // Normalize to lowercase
-
-            console.log('Counties to highlight:', highlightCounties);
-
-            // Load the GeoJSON file
-            const geojsonResponse = await fetch('alabama_counties.geojson');
-            const geojsonData = await geojsonResponse.json();
-
-            // Add GeoJSON layer with conditional styling
-            const geoLayer = L.geoJSON(geojsonData, {
-                style: function (feature) {
-                    // Check if the 'name' property exists before attempting to process it
-                    const geoCountyName = feature.properties.name ? feature.properties.name.trim().toLowerCase() : null;
-
-                    // console.log(geoCountyName);
-
-                    // Only style counties with a valid 'name' property
-                    if (geoCountyName && highlightCounties.includes(geoCountyName)) {
-                        return { color: 'red', weight: 2, fillColor: 'yellow', fillOpacity: 0.6 };
-                    } else {
-                        return { color: 'blue', weight: 1, fillOpacity: 0.0 };
-                    }
-                },
-                onEachFeature: function (feature, layer) {
-                    layer.bindPopup(`County: ${feature.properties.name}`);
-                }
-            }).addTo(map);
-
-            // Add county to tracking array
-            countyLayers.push(geoLayer)
-        } catch (error) {
-            console.error('Error loading files:', error);
-        }
     }
+  });
+}
 
-    // This makes the addButton add stores to the map
-    document.getElementById('addButton').addEventListener('click', addStores);
-    
-    // This makes the countyButton visualize the qualifying counties
-    document.getElementById('countyButton').addEventListener('click', highlightCounties);
+function donut(id, labels, values, colors) {
+  new Chart(document.getElementById(id), {
+    type: 'doughnut',
+    data: { labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 0 }] },
+    options: { cutout: '65%', plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1e2535', borderColor: '#2a3348', borderWidth: 1 } } }
+  });
+}
 
-    // Reset Button Functionality
-    document.getElementById('clearButton').addEventListener('click', function() {
-      // iterate through layers and remove
-      addedLayers.forEach(layer => {
-        map.removeLayer(layer);
-      });
-      // clear array
-      addedLayers.length = 0;
+function recs(data) {
+  const w = data.fitness.whoop;
+  const f = data.financial;
+  const totalCash = f.checking + f.savings;
+  const totalExp  = Object.values(f.monthlyExpenses).reduce((a, b) => a + b, 0);
+  const months    = totalCash / totalExp;
+  const surplus   = f.monthlyIncome - totalExp;
+  const avgRec    = w.weeklyRecovery.reduce((a,b)=>a+b,0) / w.weeklyRecovery.length;
+  const paidPct   = ((f.studentDebt.originalBalance - f.studentDebt.balance) / f.studentDebt.originalBalance) * 100;
+  const out = [];
 
-      countyLayers.forEach(layer => {
-        map.removeLayer(layer);
-      });
-      countyLayers.length = 0;
+  // Fitness rec
+  if (avgRec < 55) {
+    out.push({ p: 'high', tag: 'Fitness — Recovery', title: 'Chronic under-recovery detected', body: `7-day average recovery is ${avgRec.toFixed(0)}% — your body is accumulating fatigue. Dial back intensity and prioritize 8h sleep.`, action: `Target 3 consecutive nights of 8h sleep.` });
+  } else if (w.todayRecovery >= 67) {
+    out.push({ p: 'low', tag: 'Fitness — Strain', title: 'High recovery: push today', body: `At ${w.todayRecovery}% recovery your body is primed. Capitalize with a hard session or PR attempt.`, action: 'Aim for strain 13–18 today.' });
+  } else {
+    out.push({ p: 'med', tag: 'Fitness — Balance', title: 'Moderate recovery: smart training', body: `${w.todayRecovery}% recovery — moderate effort is optimal. Zone 2 cardio or moderate lift works well.`, action: 'Keep strain under 12 today.' });
+  }
+
+  // Emergency fund
+  if (months < 1) {
+    out.push({ p: 'high', tag: 'Finance — Safety Net', title: `Only ${months.toFixed(1)} months of expenses saved`, body: `${fmt(totalCash)} cash vs ${fmt(totalExp)}/mo expenses leaves you vulnerable. Pause extra debt payments and build cash first.`, action: `Save ${fmt(totalExp * 3 - totalCash)} to reach a 3-month cushion.` });
+  } else if (months < 3) {
+    out.push({ p: 'med', tag: 'Finance — Safety Net', title: `${months.toFixed(1)} months of runway — keep building`, body: `You're on the right track but below the 3-month benchmark. Consistent contributions will get you there.`, action: `Add ${fmt(Math.round((totalExp * 3 - totalCash) / 6))}/mo to hit 3 months in ~6 months.` });
+  } else {
+    out.push({ p: 'low', tag: 'Finance — Safety Net', title: 'Emergency fund is healthy', body: `${months.toFixed(1)} months of expenses covered. You can now direct surplus cash toward debt paydown.`, action: 'Redirect extra savings to loan principal.' });
+  }
+
+  // Debt rec
+  if (surplus > 0) {
+    const extra = Math.min(surplus * 0.5, 300);
+    const moLeft = Math.ceil(f.studentDebt.balance / (f.studentDebt.monthlyPayment + extra));
+    out.push({
+      p: months >= 3 ? 'high' : 'med',
+      tag: 'Finance — Debt',
+      title: 'Accelerate loan paydown',
+      body: `You have ~${fmt(surplus)}/mo after expenses. Adding ${fmt(Math.round(extra))}/mo extra to your payment cuts years off your loan and saves real money in interest.`,
+      action: `Paid-off in ~${moLeft} months vs. standard schedule.`
     });
-    
+  }
 
-  </script>
-  
+  return out.slice(0, 3);
+}
+
+async function init() {
+  const data = await fetch('./data.json').then(r => r.json());
+  const w = data.fitness.whoop;
+  const f = data.financial;
+
+  document.getElementById('lastUpdated').textContent = data.meta.lastUpdated;
+
+  // Recovery ring
+  const rc = w.todayRecovery;
+  const col = rcColor(rc);
+  document.getElementById('recoveryPct').textContent = rc + '%';
+  document.getElementById('recoveryPct').style.color = col;
+  const [rl, rd] = rcMeta(rc);
+  document.getElementById('recoveryLabel').textContent = rl;
+  document.getElementById('recoveryDesc').textContent = rd;
+  ring('recoveryRing', rc, col);
+
+  // Fitness tiles
+  document.getElementById('hrv').innerHTML    = w.hrv + '<span class="t-unit">ms</span>';
+  document.getElementById('rhr').innerHTML    = w.restingHeartRate + '<span class="t-unit">bpm</span>';
+  document.getElementById('strain').textContent = w.todayStrain;
+  document.getElementById('sleep').innerHTML  = w.todaySleepPerformance + '<span class="t-unit">%</span>';
+
+  // Weekly charts
+  lineChart('recoveryChart', w.weeklyLabels, [
+    { label: 'Recovery %', data: w.weeklyRecovery, borderColor: '#22c55e', backgroundColor: 'rgba(34,197,94,0.1)', tension: 0.4, fill: true, pointRadius: 3 },
+    { label: 'HRV (ms)',   data: w.weeklyHRV,      borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.08)', tension: 0.4, fill: false, pointRadius: 3 }
+  ]);
+  lineChart('sleepStrainChart', w.weeklyLabels, [
+    { label: 'Sleep %', data: w.weeklySleep,   borderColor: '#a855f7', backgroundColor: 'rgba(168,85,247,0.1)', tension: 0.4, fill: true, pointRadius: 3 },
+    { label: 'Strain',  data: w.weeklyStrain,  borderColor: '#f97316', backgroundColor: 'rgba(249,115,22,0.08)', tension: 0.4, fill: false, pointRadius: 3 }
+  ]);
+
+  // Financial
+  const totalCash = f.checking + f.savings;
+  const totalExp  = Object.values(f.monthlyExpenses).reduce((a, b) => a + b, 0);
+  const mos       = totalCash / totalExp;
+  const nw        = totalCash - f.studentDebt.balance;
+
+  document.getElementById('totalCash').textContent  = fmt(totalCash);
+  document.getElementById('checking').textContent   = fmt(f.checking);
+  document.getElementById('savings').textContent    = fmt(f.savings);
+  document.getElementById('netWorth').textContent   = (nw < 0 ? '-' : '') + fmt(nw);
+  document.getElementById('netWorth').style.color   = nw < 0 ? 'var(--red)' : 'var(--green)';
+  document.getElementById('monthsCovered').textContent = mos.toFixed(1) + ' months of expenses covered';
+
+  // Debt bar
+  const paidPct = ((f.studentDebt.originalBalance - f.studentDebt.balance) / f.studentDebt.originalBalance) * 100;
+  document.getElementById('debtPctLabel').textContent  = paidPct.toFixed(0) + '% paid';
+  document.getElementById('debtBar').style.width        = (100 - paidPct) + '%';
+  document.getElementById('debtBalance').textContent    = fmt(f.studentDebt.balance) + ' remaining';
+  document.getElementById('debtRate').textContent       = f.studentDebt.interestRate + '% APR';
+  document.getElementById('debtMonthly').textContent    = fmt(f.studentDebt.monthlyPayment) + '/mo';
+
+  const moLeft = Math.ceil(f.studentDebt.balance / f.studentDebt.monthlyPayment);
+  const payoff = new Date();
+  payoff.setMonth(payoff.getMonth() + moLeft);
+  document.getElementById('debtPayoff').textContent = 'Payoff est. ' + payoff.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+
+  // Cash flow bars
+  barChart('cashFlowChart', f.lastSixMonths.labels, [
+    { label: 'Income',   data: f.lastSixMonths.income,   backgroundColor: 'rgba(34,197,94,0.7)',  borderRadius: 4 },
+    { label: 'Expenses', data: f.lastSixMonths.expenses, backgroundColor: 'rgba(239,68,68,0.7)', borderRadius: 4 }
+  ]);
+
+  // Expense donut
+  const expLabels = Object.keys(f.monthlyExpenses);
+  const expVals   = Object.values(f.monthlyExpenses);
+  const expColors = COLORS.slice(0, expLabels.length);
+  donut('expenseDonut', expLabels, expVals, expColors);
+  document.getElementById('expenseLegend').innerHTML = expLabels.map((lbl, i) => {
+    const pct = ((expVals[i] / totalExp) * 100).toFixed(0);
+    return `<div><span class="dot" style="background:${expColors[i]}"></span>${lbl} <strong style="color:var(--text)">${pct}%</strong></div>`;
+  }).join('');
+
+  // Overall score
+  const fitScore  = Math.round(rc * 0.4 + w.todaySleepPerformance * 0.3 + Math.min(w.hrv / 80, 1) * 100 * 0.3);
+  const finScore  = Math.round(Math.min(mos / 3, 1) * 50 + paidPct * 0.5);
+  const overall   = Math.round(fitScore * 0.5 + finScore * 0.5);
+  const scoreEl   = document.getElementById('overallScore');
+  scoreEl.textContent  = overall;
+  scoreEl.style.color  = overall >= 70 ? 'var(--green)' : overall >= 45 ? 'var(--yellow)' : 'var(--red)';
+
+  // Recs
+  const pc = { high: 'p-high', med: 'p-med', low: 'p-low' };
+  document.getElementById('recsGrid').innerHTML = recs(data).map(r => `
+    <div class="rec ${pc[r.p]}">
+      <div class="rec-tag">${r.tag}</div>
+      <div class="rec-title">${r.title}</div>
+      <div class="rec-body">${r.body}</div>
+      <div class="rec-action">→ ${r.action}</div>
+    </div>`).join('');
+}
+
+init().catch(() => {
+  document.body.innerHTML = '<p style="color:red;padding:40px">Failed to load data.json</p>';
+});
 </script>
 </body>
 </html>
